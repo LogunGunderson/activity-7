@@ -1,6 +1,6 @@
 Brexit
 ================
-Naomi Ekas
+Logun Gunderson
 
 In September 2019, YouGov survey asked 1,639 GB adults the following
 question:
@@ -64,7 +64,7 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
   geom_bar() +
   facet_wrap(~region,
     nrow = 1, labeller = label_wrap_gen(width = 12),
-    # ___
+    scales = "free_x"
   ) +
   guides(fill = FALSE) +
   labs(
@@ -86,6 +86,12 @@ ggplot(brexit, aes(y = opinion, fill = opinion)) +
 
 ![](brexit_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
+*This changes the scale of the x axes of each individual facet of the
+figure so that the largest bar, that of the wrong choice, is visually
+uniform across the facets. If looking to argue relative opinion, then
+this may make sense. Otherwise, this has the potential to be misleading
+to the audience as the x axis is not uniform.*
+
 ### Exercise 2 - Comparing proportions across facets
 
 First, calculate the proportion of wrong, right, and don’t know answers
@@ -96,8 +102,31 @@ visualisation telling different than the story the original plot tells?
 which means you’ll need to load it on top of the document as well.
 
 ``` r
-# code goes here
+brexit %>%
+  count(region, opinion)%>%
+  group_by(region)%>%
+  mutate(opinion_prop = n/sum(n)) %>%
+  ggplot(aes(y = opinion, x = opinion_prop, fill = opinion)) +
+  geom_col() +
+  guides(fill = FALSE) +
+  facet_wrap(~region,
+    nrow = 1, labeller = label_wrap_gen(width = 12)) +
+  labs(title = "Was Britain right/wrong to vote to leave EU?",
+    subtitle = "YouGov Survey Results, 2-3 September 2019",
+    caption = "Source: bit.ly/2lCJZVg",
+    x = "Proportion", y = NULL) +
+  theme_minimal() +
+  scale_x_continuous(labels = percent) +
+  scale_fill_manual(values = c(
+    "Wrong" = "#ef8a62",
+    "Right" = "#67a9cf",
+    "Don't know" = "gray"))
 ```
+
+    ## Warning: `guides(<scale> = FALSE)` is deprecated. Please use `guides(<scale> =
+    ## "none")` instead.
+
+![](brexit_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Exercise 3 - Comparing proportions across bars
 
@@ -107,5 +136,22 @@ faceting by region and then improve the legend. How is the story this
 visualization telling different than the story the previous plot tells?
 
 ``` r
-# code goes here
+brexit %>%
+  count(region, opinion)%>%
+  group_by(region)%>%
+  mutate(opinion_prop = n/sum(n)) %>%
+  ggplot(aes(y = fct_rev(region), x = opinion_prop, fill = opinion)) +
+  geom_col(position = "dodge") +
+  labs(title = "Was Britain right/wrong to vote to leave EU?",
+    subtitle = "YouGov Survey Results, 2-3 September 2019",
+    caption = "Source: bit.ly/2lCJZVg",
+    x = "Percentage", y = NULL, fill = "Opinion") +
+  theme_minimal() +
+  scale_x_continuous(labels = percent) +
+  scale_fill_manual(values = c(
+    "Wrong" = "#ef8a62",
+    "Right" = "#67a9cf",
+    "Don't know" = "gray"))
 ```
+
+![](brexit_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
